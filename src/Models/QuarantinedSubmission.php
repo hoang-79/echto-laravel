@@ -54,10 +54,19 @@ class QuarantinedSubmission extends Model
     }
 
     /**
-     * Wer die Einsendung geschickt hat, soweit das Formular es verrät: ein Name, sonst eine Mailadresse.
+     * Wer die Einsendung geschickt hat, soweit das Formular es verrät: Vorname und Nachname, ein Name in einem
+     * Feld, sonst eine Mailadresse.
      */
     public function sender(): ?string
     {
+        foreach ([['vorname', 'nachname'], ['first_name', 'last_name'], ['firstname', 'lastname']] as [$first, $last]) {
+            $name = trim(implode(' ', array_filter([$this->payload[$first] ?? null, $this->payload[$last] ?? null], is_string(...))));
+
+            if ($name !== '') {
+                return $name;
+            }
+        }
+
         foreach (['name', 'email', 'e-mail', 'mail'] as $field) {
             $value = $this->payload[$field] ?? null;
 
