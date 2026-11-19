@@ -1,0 +1,31 @@
+{
+    "name": "nguyen-development/echto-laravel",
+    "description": "Echto für Laravel: eine Zeile an der Route schützt ein Formular; Zweifel landet in der Quarantäne statt im Papierkorb.",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.3",
+        "ext-sodium": "*",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/database": "^12.0|^13.0",
+        "illuminate/http": "^12.0|^13.0",
+        "illuminate/routing": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
+        "illuminate/view": "^12.0|^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Echto\\Laravel\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Echto\\Laravel\\EchtoServiceProvider"
+            ],
+            "aliases": {
+                "Echto": "Echto\\Laravel\\Facades\\Echto"
+            }
+        }
+    }
+}
