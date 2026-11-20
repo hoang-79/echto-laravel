@@ -2,7 +2,26 @@
     "name": "nguyen-development/echto-laravel",
     "description": "Echto für Laravel: eine Zeile an der Route schützt ein Formular; Zweifel landet in der Quarantäne statt im Papierkorb.",
     "type": "library",
-    "license": "proprietary",
+    "license": "MIT",
+    "homepage": "https://echto.ch",
+    "keywords": [
+        "laravel",
+        "captcha",
+        "spam",
+        "formular",
+        "bot",
+        "datenschutz"
+    ],
+    "authors": [
+        {
+            "name": "Hoang Nguyen",
+            "homepage": "https://nguyen-development.ch"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/hoang-79/echto-laravel/issues",
+        "source": "https://github.com/hoang-79/echto-laravel"
+    },
     "require": {
         "php": "^8.3",
         "ext-sodium": "*",
