@@ -18,6 +18,8 @@ class EchtoServiceProvider extends ServiceProvider
 
         $this->app->singleton(Echto::class);
         $this->app->singleton(Quarantine::class);
+        $this->app->singleton(Confirmation::class);
+        $this->app->bind(LoginConfirmation::class, fn ($app): LoginConfirmation => new LoginConfirmation($app->make('cache.store')));
         $this->app->bind(SelfCheck::class, fn ($app): SelfCheck => new SelfCheck($app->make('cache.store')));
     }
 
@@ -28,6 +30,7 @@ class EchtoServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'echto');
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         Blade::component('echto-widget', Widget::class);
+        Blade::anonymousComponentPath(__DIR__.'/../resources/views/components', 'echto');
 
         // Wer die Quarantäne sehen darf, legt die Anwendung fest; ohne eigene Regel nur die lokale Umgebung.
         if (! Gate::has('viewEchtoQuarantine')) {
@@ -40,6 +43,9 @@ class EchtoServiceProvider extends ServiceProvider
                 ->name('echto.quarantine.')
                 ->group(__DIR__.'/../routes/web.php');
         }
+
+        // Bestätigung per E-Mail und Code bei der Anmeldung — Seiten für Besucher, mit Sitzung und Formularschutz.
+        Route::middleware((array) config('echto.confirmation.middleware', ['web']))->group(__DIR__.'/../routes/visitor.php');
 
         if ($this->app->runningInConsole()) {
             $this->publishes([__DIR__.'/../config/echto.php' => config_path('echto.php')], 'echto-config');

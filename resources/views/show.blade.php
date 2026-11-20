@@ -10,6 +10,9 @@
             <div><strong>{{ __('Zurückgehalten:') }} {{ $reason['text'] ?? $reason['code'] ?? '' }}</strong></div>
         </div>
     @endforeach
+    @if ($submission->awaitsConfirmation())
+        <p class="muted small" style="margin-top: 8px">{{ __('Der Absender hat einen Link zum Bestätigen bekommen (gültig bis :time). Bestätigt er, läuft die Einsendung von selbst weiter.', ['time' => $submission->confirm_until?->format('d.m.Y H:i')]) }}</p>
+    @endif
     @if ($submission->unreachable)
         <p class="muted small" style="margin-top: 8px">{{ __('Antwortet Echto nicht, lässt das Paket die Einsendung durch und hält sie zurück. So geht bei einem Ausfall nichts verloren und nichts ungeprüft hinaus.') }}</p>
     @endif

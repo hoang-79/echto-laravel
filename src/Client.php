@@ -108,17 +108,24 @@ class Client
     }
 
     /**
-     * Meldet Echto, dass eine zurückgehaltene Einsendung freigegeben oder verworfen wurde — nur dieses eine Wort.
+     * Meldet Echto, dass eine zurückgehaltene Einsendung freigegeben, vom Absender bestätigt oder verworfen wurde —
+     * nur dieses eine Wort.
      * Gelingt die Meldung nicht, ist das kein Fehler für die Betreiberin.
      */
-    public function reportOutcome(string $form, bool $released): void
+    public function reportOutcome(string $form, bool $released, bool $byVisitor = false): void
     {
         if (! $this->configured()) {
             return;
         }
 
+        $outcome = match (true) {
+            $released && $byVisitor => 'confirmed',
+            $released => 'released',
+            default => 'discarded',
+        };
+
         try {
-            $this->request()->post('/v1/outcome', ['form' => $form, 'outcome' => $released ? 'released' : 'discarded']);
+            $this->request()->post('/v1/outcome', ['form' => $form, 'outcome' => $outcome]);
         } catch (Throwable) {
             // Die Kennzahl bei Echto ist dann um eins zu klein; die Einsendung ist trotzdem freigegeben.
         }

@@ -16,8 +16,16 @@ class FakeClient extends Client
     /** @var list<array{form: string, action: string, token: string|null, features: array<string, int|float|bool>}> */
     public array $checks = [];
 
-    /** @var list<array{form: string, released: bool}> */
+    /** @var list<array{form: string, released: bool, byVisitor: bool}> */
     public array $outcomes = [];
+
+    /**
+     * Gründe, mit denen die Attrappe antwortet — für Tests, die auf einen bestimmten Grund reagieren. Leer: ein
+     * Grund `fake.<urteil>`.
+     *
+     * @var list<array{code: string, text: string}>|null
+     */
+    public ?array $reasons = null;
 
     public function __construct(private Verdict $verdict) {}
 
@@ -25,10 +33,10 @@ class FakeClient extends Client
     {
         $this->checks[] = ['form' => $form, 'action' => $action, 'token' => $token, 'features' => $features];
 
-        return new Verification($this->verdict, $this->verdict === Verdict::Pass ? [] : [[
+        return new Verification($this->verdict, $this->reasons ?? ($this->verdict === Verdict::Pass ? [] : [[
             'code' => 'fake.'.$this->verdict->value,
             'text' => 'Attrappe für Tests: festes Urteil.',
-        ]]);
+        ]]));
     }
 
     /**
@@ -41,9 +49,9 @@ class FakeClient extends Client
         return ['disposable_domains' => array_values(array_filter((array) config('echto.disposable_domains'), is_string(...)))];
     }
 
-    public function reportOutcome(string $form, bool $released): void
+    public function reportOutcome(string $form, bool $released, bool $byVisitor = false): void
     {
-        $this->outcomes[] = ['form' => $form, 'released' => $released];
+        $this->outcomes[] = ['form' => $form, 'released' => $released, 'byVisitor' => $byVisitor];
     }
 
     public function assertChecked(string $form, int $times = 1): void

@@ -20,6 +20,8 @@ use Illuminate\Support\Carbon;
  * @property list<array{code: string, text: string}> $reasons
  * @property string|null $user_id
  * @property bool $unreachable
+ * @property Carbon|null $confirm_until bis wann der Absender per Link bestätigen kann (F-08)
+ * @property string|null $return_url wohin der Absender nach dem Bestätigen zurückkann
  * @property Carbon $expires_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -41,8 +43,17 @@ class QuarantinedSubmission extends Model
             'payload' => 'encrypted:array',
             'reasons' => 'array',
             'unreachable' => 'boolean',
+            'confirm_until' => 'datetime',
             'expires_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Wartet die Einsendung darauf, dass der Absender sie per Link bestätigt?
+     */
+    public function awaitsConfirmation(): bool
+    {
+        return $this->confirm_until !== null && $this->confirm_until->isFuture();
     }
 
     /**

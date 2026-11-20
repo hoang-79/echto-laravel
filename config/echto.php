@@ -75,4 +75,45 @@ return [
         'days' => 30,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Bestätigung per E-Mail
+    |--------------------------------------------------------------------------
+    |
+    | Statt in der Quarantäne auf die Betreiberin zu warten, bestätigt der Absender im Zweifel selbst: ein Link per
+    | Mail, ein Klick, die Einsendung gilt (F-08). Gilt für die Formulare in `forms` (`['*']` für alle); die
+    | Mailadresse steht im Feld `email_field`. Die Mail geht von dieser Anwendung aus, mit ihrer Mailvorlage — Echto
+    | tritt darin nicht auf. Je Adresse höchstens `per_hour` Mails in der Stunde, damit niemand fremde Postfächer mit
+    | Bestätigungen füllt.
+    |
+    */
+
+    'confirmation' => [
+        'forms' => [],
+        'email_field' => 'email',
+        'hours' => 24,
+        'per_hour' => 3,
+        'path' => 'echto/bestaetigen',
+        'middleware' => ['web'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Anmeldung im Zweifel
+    |--------------------------------------------------------------------------
+    |
+    | Eine Anmeldung lässt sich nicht zurückhalten. Für die Formulare in `forms` schickt das Paket im Zweifel einen
+    | Code an die Adresse im Feld `email_field`; nach dem richtigen Code geht die nächste Anmeldung durch (F-09).
+    | Das Passwort wird dabei nirgends abgelegt — wer bestätigt hat, meldet sich noch einmal an.
+    |
+    */
+
+    'login' => [
+        'forms' => [],
+        'email_field' => 'email',
+        'minutes' => 10,
+        'attempts' => 5,
+        'path' => 'echto/code',
+    ],
+
 ];

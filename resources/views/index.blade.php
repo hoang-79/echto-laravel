@@ -36,6 +36,9 @@
                         @foreach ($submission->reasons as $reason)
                             <p class="reason">{{ __('Zurückgehalten:') }} {{ $reason['text'] ?? $reason['code'] ?? '' }}</p>
                         @endforeach
+                        @if ($submission->awaitsConfirmation())
+                            <p class="muted small" style="margin-top: 6px">{{ __('Der Absender hat einen Link zum Bestätigen bekommen (gültig bis :time). Bestätigt er, läuft die Einsendung von selbst weiter.', ['time' => $submission->confirm_until?->format('d.m.Y H:i')]) }}</p>
+                        @endif
                         <p style="margin-top: 6px"><a href="{{ route('echto.quarantine.show', $submission) }}">{{ __('Ganz ansehen') }}</a></p>
                     </div>
                     <div class="actions">

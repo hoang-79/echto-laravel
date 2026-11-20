@@ -42,9 +42,10 @@ class Quarantine
 
     /**
      * Gibt die Einsendung frei: Sie läuft weiter, als wäre sie eben abgesendet worden. Scheitert das — etwa an der
-     * Prüfung der Felder —, bleibt sie in der Quarantäne, und der Fehler steigt auf.
+     * Prüfung der Felder —, bleibt sie in der Quarantäne, und der Fehler steigt auf. `byVisitor`: Der Absender hat
+     * per Link selbst bestätigt (F-08) — Echto zählt das getrennt von der Freigabe durch die Betreiberin.
      */
-    public function release(QuarantinedSubmission $submission): Response
+    public function release(QuarantinedSubmission $submission, bool $byVisitor = false): Response
     {
         $original = $this->app->make('request');
 
@@ -75,7 +76,7 @@ class Quarantine
         }
 
         $submission->delete();
-        $this->app->make(Client::class)->reportOutcome($submission->form, released: true);
+        $this->app->make(Client::class)->reportOutcome($submission->form, released: true, byVisitor: $byVisitor);
 
         return $response;
     }
