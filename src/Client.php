@@ -21,8 +21,10 @@ class Client
 
     /**
      * @param  array<string, int|float|bool>  $features  Merkmale des Inhalts — nur Zahlen und Wahrheitswerte (`Features`)
+     * @param  string|null  $userAgent  Kennung des Browsers oder Automaten — damit Echto bekannte Automaten erkennt (M-02)
+     * @param  string|null  $botKey  Schlüssel eines eigenen Automaten aus der Kopfzeile `Echto-Bot-Key` (M-04)
      */
-    public function verify(string $form, string $action, ?string $token, ?string $ip, array $features): Verification
+    public function verify(string $form, string $action, ?string $token, ?string $ip, array $features, ?string $userAgent = null, ?string $botKey = null): Verification
     {
         if (! $this->configured()) {
             Log::warning('Echto ist nicht eingerichtet: ECHTO_SITE und ECHTO_SECRET fehlen. Einsendungen werden zurückgehalten.');
@@ -36,6 +38,8 @@ class Client
                 'form' => $form,
                 'action' => $action,
                 'remote_ip' => $ip,
+                'user_agent' => $userAgent === null ? null : mb_substr($userAgent, 0, 512),
+                'bot_key' => $botKey,
                 'features' => $features,
             ], fn (mixed $value): bool => $value !== null && $value !== ''));
         } catch (ConnectionException) {

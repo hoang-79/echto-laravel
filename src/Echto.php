@@ -46,6 +46,8 @@ class Echto
                 ...Features::of($input, $client->rules()),
                 'honeypot_filled' => $request->filled((string) config('echto.honeypot_field')),
             ],
+            $request->userAgent(),
+            $request->header('Echto-Bot-Key'),
         );
 
         $request->attributes->set('echto.verification.'.$form, $verification);

@@ -29,7 +29,7 @@ class FakeClient extends Client
 
     public function __construct(private Verdict $verdict) {}
 
-    public function verify(string $form, string $action, ?string $token, ?string $ip, array $features): Verification
+    public function verify(string $form, string $action, ?string $token, ?string $ip, array $features, ?string $userAgent = null, ?string $botKey = null): Verification
     {
         $this->checks[] = ['form' => $form, 'action' => $action, 'token' => $token, 'features' => $features];
 
