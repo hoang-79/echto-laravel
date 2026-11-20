@@ -6,6 +6,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory as Http;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -19,7 +20,7 @@ class Client
     public function __construct(private readonly Http $http, private readonly SelfCheck $selfCheck) {}
 
     /**
-     * @param  array<string, int|float|bool>  $features  Merkmale des Inhalts — nur Zahlen und Wahrheitswerte
+     * @param  array<string, int|float|bool>  $features  Merkmale des Inhalts — nur Zahlen und Wahrheitswerte (`Features`)
      */
     public function verify(string $form, string $action, ?string $token, ?string $ip, array $features): Verification
     {
@@ -57,6 +58,53 @@ class Client
         $reasons = array_values(array_filter((array) $response->json('reasons'), is_array(...)));
 
         return new Verification($verdict, $reasons);
+    }
+
+    /**
+     * Die Regeln für den Inhalt von Echto (F-10): Listen und Wörter, angewendet in `Features`. Das Paket behält sie
+     * so lange, wie Echto sagt (Vorgabe eine Stunde). Antwortet Echto nicht, gelten fünf Minuten lang die Listen aus
+     * der Konfiguration des Pakets — eine Einsendung wartet nie auf die Regeln.
+     *
+     * @return array{disposable_domains?: list<string>, patterns?: array<string, list<string>>, languages?: array<string, list<string>>, words?: array<array-key, string>}
+     */
+    public function rules(): array
+    {
+        /** @var array{disposable_domains?: list<string>, patterns?: array<string, list<string>>, languages?: array<string, list<string>>, words?: array<array-key, string>}|null $cached */
+        $cached = Cache::get('echto.rules');
+
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+        $fallback = ['disposable_domains' => array_values(array_filter((array) config('echto.disposable_domains'), is_string(...)))];
+
+        if (! $this->configured()) {
+            return $fallback;
+        }
+
+        try {
+            $response = $this->request()->get('/v1/rules');
+        } catch (Throwable) {
+            $response = null;
+        }
+
+        if ($response === null || ! $response->successful() || ! is_array($response->json())) {
+            Cache::put('echto.rules', $fallback, 300);
+
+            return $fallback;
+        }
+
+        $rules = [
+            'disposable_domains' => array_values(array_filter((array) $response->json('disposable_domains'), is_string(...))),
+            'patterns' => array_filter((array) $response->json('patterns'), is_array(...)),
+            'languages' => array_filter((array) $response->json('languages'), is_array(...)),
+            'words' => array_filter((array) $response->json('words'), is_string(...)),
+        ];
+
+        /** @var array{disposable_domains: list<string>, patterns: array<string, list<string>>, languages: array<string, list<string>>, words: array<array-key, string>} $rules */
+        Cache::put('echto.rules', $rules, max(60, (int) $response->json('cache_seconds', 3600)));
+
+        return $rules;
     }
 
     /**

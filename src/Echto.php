@@ -36,13 +36,14 @@ class Echto
         $token = $request->input((string) config('echto.token_field'));
         $input = $this->fieldsOf($request);
 
-        $verification = $this->app->make(Client::class)->verify(
+        $client = $this->app->make(Client::class);
+        $verification = $client->verify(
             $form,
             $action,
             is_string($token) ? $token : null,
             $request->ip(),
             [
-                ...Features::of($input, array_values(array_filter((array) config('echto.disposable_domains'), is_string(...)))),
+                ...Features::of($input, $client->rules()),
                 'honeypot_filled' => $request->filled((string) config('echto.honeypot_field')),
             ],
         );

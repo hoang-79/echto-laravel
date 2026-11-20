@@ -45,8 +45,10 @@ return [
     | Merkmale des Inhalts
     |--------------------------------------------------------------------------
     |
-    | Das Paket zählt Links und erkennt Wegwerf-Mailadressen und meldet Echto nur das Ergebnis — eine Zahl und einen
-    | Wahrheitswert. Der Inhalt des Formulars verlässt diesen Server nicht.
+    | Das Paket holt die Regeln für den Inhalt bei Echto (`GET /v1/rules`: Wegwerf-Dienste, bekannte Muster, Wörter
+    | je Sprache, eigene Wort-Regeln), wendet sie hier an und meldet Echto nur das Ergebnis — Zahlen und
+    | Wahrheitswerte. Der Inhalt des Formulars verlässt diesen Server nicht. Die Liste unten gilt nur, solange Echto
+    | nicht erreichbar ist.
     |
     */
 

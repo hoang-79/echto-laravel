@@ -31,6 +31,16 @@ class FakeClient extends Client
         ]]);
     }
 
+    /**
+     * Die Attrappe holt keine Regeln: Es gelten die Listen aus der Konfiguration des Pakets.
+     *
+     * @return array{disposable_domains: list<string>}
+     */
+    public function rules(): array
+    {
+        return ['disposable_domains' => array_values(array_filter((array) config('echto.disposable_domains'), is_string(...)))];
+    }
+
     public function reportOutcome(string $form, bool $released): void
     {
         $this->outcomes[] = ['form' => $form, 'released' => $released];
